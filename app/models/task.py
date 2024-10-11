@@ -14,7 +14,7 @@ class Task(Base):
     completed = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     slug = Column(String, unique=True, index=True)
-    user = relationship(argument='User', back_populates='task', cascade='save-update, merge, delete')
+    user = relationship(argument='User', back_populates='tasks', cascade='save-update, merge, delete')
 
 
 from sqlalchemy.schema import CreateTable
