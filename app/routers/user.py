@@ -27,6 +27,17 @@ async def user_by_id(db: Annotated[Session, Depends(get_db)], user_id: int):
     return user
 
 
+@router.get('user_id/tasks')
+async def tasks_by_user_id(db: Annotated[Session, Depends(get_db)], user_id: int):
+    user = db.scalar(select(User).where(User.id == user_id))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no user found'
+        )
+    return db.scalar(select(Task).where(Task.user_id == user_id))
+
+
 @router.post('/create')
 async def create_user(db: Annotated[Session, Depends(get_db)], create_user: CreateUser):
     user = db.scalar(select(User).where(User.username == create_user.username))
@@ -52,9 +63,9 @@ async def update_user(db: Annotated[Session, Depends(get_db)], update_user: Upda
             status_code=status.HTTP_404_NOT_FOUND,
             detail='There is no user found'
         )
-    db.execute(update(User).where(User.id == user_id)).values(first_name=update_user.firstname,
+    db.execute(update(User).where(User.id == user_id).values(first_name=update_user.firstname,
                                                               last_name=update_user.lastname,
-                                                              age=update_user.age)
+                                                              age=update_user.age))
     db.commit()
     return {'status_code': status.HTTP_200_OK, 'transaction': 'User update is successful!'}
 
